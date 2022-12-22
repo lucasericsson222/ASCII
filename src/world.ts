@@ -1,16 +1,12 @@
-const N = 18;
-const M = 7;
+import {Entity, ActiveEntity, Empty} from './Entity.js';
+
+const N = 7;
+const M = 18;
 const W = 5;
-abstract class Entity {
-    abstract display(): string[];
-}
-class Empty extends Entity {
-    display(): string[] {
-        return [" "];
-    }
-}
-class World {
-    private data: Entity [][];
+
+export class World {
+    private data: Entity[][];
+    private activeData: ActiveEntity[];
     static get N() {
         return N;
     }
@@ -48,12 +44,17 @@ class World {
         for(let i = 0; i < N; i++) { // row number
             for(let j = 0; j < M; j++) { // column number
                 for(let k = 0; k < W; k++) { // level number
-                    output[k] += this.data[i][j].display();
+                    let listValues = this.data[i][j].display();
+                    if(listValues.length > k ) {
+                        output[k] += listValues[k];
+                    } else {
+                        output[k] += new Empty().display()[0];
+                    }
                 }
             }
             // newline after each row
             for(let k = 0; k < W; k++) {
-                output[k] += "&#10;";
+                output[k] += "<br/>";
             }
         }
         // each level ends with a paragraph bracket
@@ -69,4 +70,15 @@ class World {
 
         return final;
     }
+    addEntity(obj: Entity, x:number, y:number): void {
+        if(!(this.data[x][y] instanceof Empty)) {
+            throw new Error("There is already a Entity there.");
+        }
+        if(obj instanceof ActiveEntity) {
+            this.activeData.push(obj);
+        }
+        this.data[x][y] = obj;
+        obj.setPosition(x,y);
+    }
+
 }
